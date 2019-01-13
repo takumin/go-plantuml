@@ -1,7 +1,7 @@
 package plantuml
 
 import (
-	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -11,13 +11,15 @@ var (
 )
 
 func TestEncodeSuccess(t *testing.T) {
-	buf := bytes.NewBufferString(raw)
+	buf := strings.NewReader(raw)
 
 	res, err := Encode(buf)
 	if err != nil {
 		t.Fatalf("exists error %#v", err)
 	}
 	if res != enc {
+		t.Logf("success: %#v", enc)
+		t.Logf("convert: %#v", res)
 		t.Fatalf("converted strings do not match")
 	}
 }

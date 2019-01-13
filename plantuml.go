@@ -2,7 +2,7 @@ package plantuml
 
 import (
 	"bytes"
-	"compress/flate"
+	"compress/zlib"
 	"encoding/base64"
 	"errors"
 	"io"
@@ -11,34 +11,36 @@ import (
 )
 
 func Encode(r io.Reader) (string, error) {
-	buf, err := ioutil.ReadAll(r)
+	raw, err := ioutil.ReadAll(r)
 	if err != nil {
 		return "", err
 	}
-	if !utf8.Valid(buf) {
+	if !utf8.Valid(raw) {
 		return "", errors.New("invalid utf8 string")
 	}
 
-	fpr, fpw := io.Pipe()
-	fenc, err := flate.NewWriter(fpw, flate.BestCompression)
+	buf := bytes.NewReader(raw)
+
+	zpr, zpw := io.Pipe()
+	zenc, err := zlib.NewWriterLevel(zpw, zlib.BestCompression)
 	if err != nil {
 		return "", err
 	}
 	go func() {
-		defer fenc.Close()
-		_, err = io.Copy(fenc, r)
+		_, err = io.Copy(zenc, buf)
+		zenc.Close()
 		if err != nil {
-			fpw.CloseWithError(err)
+			zpw.CloseWithError(err)
 		} else {
-			fpw.Close()
+			zpw.Close()
 		}
 	}()
 
 	bpr, bpw := io.Pipe()
-	benc := base64.NewEncoder(base64.URLEncoding.WithPadding('\x00'), bpw)
+	benc := base64.NewEncoder(base64.RawURLEncoding, bpw)
 	go func() {
-		defer benc.Close()
-		_, err = io.Copy(benc, fpr)
+		_, err = io.Copy(benc, zpr)
+		benc.Close()
 		if err != nil {
 			bpw.CloseWithError(err)
 		} else {
@@ -46,7 +48,6 @@ func Encode(r io.Reader) (string, error) {
 		}
 	}()
 
-	res := new(bytes.Buffer)
-	res.ReadFrom(bpr)
-	return res.String(), nil
+	res, err := ioutil.ReadAll(bpr)
+	return string(res), err
 }
