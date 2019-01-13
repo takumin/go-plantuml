@@ -10,6 +10,8 @@ import (
 	"unicode/utf8"
 )
 
+const mapper = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
+
 func Encode(r io.Reader) (string, error) {
 	raw, err := ioutil.ReadAll(r)
 	if err != nil {
@@ -36,8 +38,10 @@ func Encode(r io.Reader) (string, error) {
 		}
 	}()
 
+	penc := base64.NewEncoding(mapper).WithPadding(base64.NoPadding)
+
 	bpr, bpw := io.Pipe()
-	benc := base64.NewEncoder(base64.RawURLEncoding, bpw)
+	benc := base64.NewEncoder(penc, bpw)
 	go func() {
 		_, err = io.Copy(benc, zpr)
 		benc.Close()
