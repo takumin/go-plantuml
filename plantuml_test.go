@@ -1,7 +1,6 @@
 package plantuml
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -11,9 +10,7 @@ var (
 )
 
 func TestEncodeSuccess(t *testing.T) {
-	buf := strings.NewReader(raw)
-
-	res, err := Encode(buf)
+	res, err := Encode([]byte(raw))
 	if err != nil {
 		t.Fatalf("exists error %#v", err)
 	}

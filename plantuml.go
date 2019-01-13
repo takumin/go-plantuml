@@ -12,16 +12,12 @@ import (
 
 const mapper = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
 
-func Encode(r io.Reader) (string, error) {
-	raw, err := ioutil.ReadAll(r)
-	if err != nil {
-		return "", err
-	}
-	if !utf8.Valid(raw) {
+func Encode(p []byte) (string, error) {
+	if !utf8.Valid(p) {
 		return "", errors.New("invalid utf8 string")
 	}
 
-	buf := bytes.NewReader(raw)
+	r := bytes.NewReader(p)
 
 	zpr, zpw := io.Pipe()
 	zenc, err := zlib.NewWriterLevel(zpw, zlib.BestCompression)
@@ -29,7 +25,7 @@ func Encode(r io.Reader) (string, error) {
 		return "", err
 	}
 	go func() {
-		_, err = io.Copy(zenc, buf)
+		_, err = io.Copy(zenc, r)
 		zenc.Close()
 		if err != nil {
 			zpw.CloseWithError(err)
