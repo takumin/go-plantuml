@@ -7,7 +7,7 @@ import (
 
 var (
 	raw = "Alice -> Bob: Hello World!"
-	enc = "Syp9J4vLqBLJSCfFibBmICt9oLS8po_AIL440000"
+	enc = "UDfopCbCJbNGjLDmoa-oKl18pSd9LmZFByf9KGG4003__sl223G"
 )
 
 func TestEncodeSuccess(t *testing.T) {
