@@ -63,6 +63,6 @@ func main() {
 	case "encode":
 		fmt.Fprintf(os.Stdout, "%s\n", enc)
 	case "link":
-		fmt.Fprintf(os.Stdout, "<img src=\"%s/%s/%s\" />\n", server, format, enc)
+		fmt.Fprintf(os.Stdout, "<a href=\"%s/uml/%s\"><img src=\"%s/%s/%s\" alt=\"PlantUML PNG Image\" /></a>\n", server, enc, server, format, enc)
 	}
 }
