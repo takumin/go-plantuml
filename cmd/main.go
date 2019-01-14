@@ -38,5 +38,11 @@ func main() {
 		return
 	}
 
-	puml.Encode(raw)
+	enc, err := puml.Encode(raw)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "plantuml encoding:", err)
+		return
+	}
+
+	fmt.Fprintln(os.Stdout, enc)
 }
