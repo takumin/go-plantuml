@@ -19,12 +19,27 @@ func main() {
 		style  string
 	)
 	flag.StringVar(&server, "server", "http://plantuml.com/plantuml", "PlantUML Server Address")
-	flag.StringVar(&format, "format", "png", "Output Format (Options: png, svg, ascii)")
-	flag.StringVar(&style, "style", "png", "Output Style (Options: enc, link, img)")
+	flag.StringVar(&format, "format", "png", "Output Format (Options: png, svg)")
+	flag.StringVar(&style, "style", "link", "Output Style (Options: encode, link)")
 	flag.Parse()
 
 	if terminal.IsTerminal(0) {
 		flag.PrintDefaults()
+		return
+	}
+
+	if server == "" {
+		fmt.Fprintf(os.Stderr, "require plantuml server address")
+		return
+	}
+
+	if format != "png" && format != "svg" {
+		fmt.Fprintf(os.Stderr, "require format option png or svg")
+		return
+	}
+
+	if style != "encode" && style != "link" {
+		fmt.Fprintf(os.Stderr, "require style option encode or link")
 		return
 	}
 
@@ -44,5 +59,10 @@ func main() {
 		return
 	}
 
-	fmt.Fprintln(os.Stdout, enc)
+	switch style {
+	case "encode":
+		fmt.Fprintf(os.Stdout, "%s\n", enc)
+	case "link":
+		fmt.Fprintf(os.Stdout, "<img src=\"%s/%s/%s\" />\n", server, format, enc)
+	}
 }
