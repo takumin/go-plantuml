@@ -8,6 +8,8 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/crypto/ssh/terminal"
+
+	puml "github.com/takumin/go-plantuml"
 )
 
 func main() {
@@ -26,13 +28,15 @@ func main() {
 		return
 	}
 
-	buf, err := ioutil.ReadAll(os.Stdin)
+	raw, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		return
 	}
-	if !utf8.Valid(buf) {
-		fmt.Fprintln(os.Stderr, "invalid utf8 strings")
+	if !utf8.Valid(raw) {
+		fmt.Fprintln(os.Stderr, "invalid utf8 strings:", raw)
 		return
 	}
+
+	puml.Encode(raw)
 }
